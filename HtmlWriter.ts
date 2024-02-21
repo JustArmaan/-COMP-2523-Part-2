@@ -1,3 +1,4 @@
+import { EOL } from "node:os";
 import { IWritable } from "./IWritable ";
 import { writeFile } from "node:fs/promises";
 
@@ -14,7 +15,8 @@ export class HtmlWriter implements IWritable {
     }
 
     private tagData(data: string) {
-        
+        const split = data.split(EOL);
+
         return ""
     }
 
