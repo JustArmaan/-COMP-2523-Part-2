@@ -33,7 +33,7 @@ export class TextWriter implements IWritable {
             }
         });
         uniqueMealType.forEach((mealType) => {
-            this.results += `****${mealType}**** ${EOL}`;
+            this.results += `****${mealType.toUpperCase()}**** ${EOL}`;
             menuItems.forEach((items) => {
                 if (items.type === mealType) {
                     this.results += `${items.price} ${items.name} ${items.quantity} ${EOL}`;
