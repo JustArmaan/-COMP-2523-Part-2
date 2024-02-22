@@ -2,58 +2,49 @@ import { EOL } from "node:os";
 import { IWritable } from "./IWritable ";
 import { writeFile } from "node:fs/promises";
 
-
-interface Menu {
-    [key: string]: string[];
+interface MenuItems {
+    type: string;
+    name: string;
+    quantity: string;
+    price: string;
 }
 
 export class TextWriter implements IWritable {
     private filename: string;
+    public results: string;
 
     constructor(filename: string) {
         this.filename = filename;
+        this.results = "";
     }
 
-    async write(data: string) {
-        const formatedData = this.format(data);
-        await writeFile(this.filename, formatedData);
-    }
-    
+    async write(menuItems: MenuItems[]) {
+        this.format(menuItems);
 
-    private organizeMenuItems(menuItem: string): string {
-        const words = menuItem.split(',');
-        words.shift();
-        const cost = words[2];
-        words.pop()
-        words.unshift(cost);
-        console.log(words)
-        return words.join(",");
+        await writeFile(this.filename, this.results);
     }
 
-    private newMenuItem(menuItem: string, menu: string[]) {
-        menu.push(this.organizeMenuItems(menuItem));
-    }
+    private format(menuItems: MenuItems[]): void {
+        const uniqueMealType: string[] = [];
 
-    private format(data: string): string {
-        const split = data.split(EOL);
-        const menuList: Menu = {};
-        
-        for (let i = 0; i < split.length; i++) {
-            const menuItem = split[i];
-            const mealType = menuItem.split(',', 1);
-            if (!menuList[mealType[0]]) {
-                menuList[mealType[0]] = [`*****${mealType}******`];
+        menuItems.forEach((items) => {
+            if (!uniqueMealType.includes(items.type)) {
+                uniqueMealType.push(items.type);
             }
-            this.newMenuItem(menuItem, menuList[mealType[0]]);
-            console.log(mealType);
-        }
-
-        const formattedResult = Object.keys(menuList).map(mealType => `${menuList[mealType].join('\n')}`).join('\n\n'); 
-         //const formattedResult = `${lunchMenu.join('\n')}\n\n${dinnerMenu.join('\n')}`;
-        return formattedResult;
+        });
+        uniqueMealType.forEach((mealType) => {
+            this.results += `****${mealType}**** ${EOL}`;
+            menuItems.forEach((items) => {
+                if (items.type === mealType) {
+                    this.results += `${items.price} ${items.name} ${items.quantity} ${EOL}`;
+                }
+            });
+        });
     }
 }
-
+// interface Menu {
+//     [key: string]: string[];
+// }
 
 // private format(data: string): string {
 //     const split = data.split(EOL);
@@ -73,5 +64,28 @@ export class TextWriter implements IWritable {
 //         }
 //     });
 //     const formattedResult = `${lunchMenu.join('\n')}\n\n${dinnerMenu.join('\n')}`;
+//     return formattedResult;
+// }
+
+// private newMenuItem(menuItem: string, menu: string[]) {
+//     menu.push(this.organizeMenuItems(menuItem));
+// }
+
+// private format(data: string): string {
+//     const split = data.split(EOL);
+//     const menuList: Menu = {};
+
+//     for (let i = 0; i < split.length; i++) {
+//         const menuItem = split[i];
+//         const mealType = menuItem.split(',', 1);
+//         if (!menuList[mealType[0]]) {
+//             menuList[mealType[0]] = [`*****${mealType}******`];
+//         }
+//         this.newMenuItem(menuItem, menuList[mealType[0]]);
+//         console.log(mealType);
+//     }
+
+//     const formattedResult = Object.keys(menuList).map(mealType => `${menuList[mealType].join('\n')}`).join('\n\n');
+//      //const formattedResult = `${lunchMenu.join('\n')}\n\n${dinnerMenu.join('\n')}`;
 //     return formattedResult;
 // }

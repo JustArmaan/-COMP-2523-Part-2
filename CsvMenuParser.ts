@@ -4,20 +4,35 @@ import { readFile } from "node:fs/promises";
 import { HtmlWriter } from "./HtmlWriter";
 import { TextWriter } from "./TextWriter";
 
+interface MenuItems {
+    type: string; 
+    name: string; 
+    quantity: string; 
+    price: string
+}
+
 class CsvMenuParser {
     private csvData: string[] = [];
+    private menuItems: MenuItems[] = [];
 
-    private constructor(data: string[]) {
+    private constructor(data: string[], menuItems: MenuItems[]) {
         this.csvData = data;
+        this.menuItems = menuItems;
     }
 
     static async buildMenu(filename: string) {
         const data = await readFile(filename, "utf8");
-        return new CsvMenuParser(data.split(EOL))
+        const splitData = data.split(EOL)
+        console.log(splitData)
+        const menuItems = splitData.map((menu) => {
+            const [mealType, mealName, mealQuantity, price] = menu.split(",");
+            return { type: mealType, name: mealName, quantity: mealQuantity, price: price };
+        });
+        return new CsvMenuParser(data.split(EOL), menuItems)
     }
 
     async writeMenu(writer: IWritable) {
-        writer.write(this.csvData.join(EOL));
+        writer.write(this.menuItems);
     }
 }
 
